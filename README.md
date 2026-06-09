@@ -35,17 +35,44 @@ Configuration is handled via environment variables (or a `.env` file) using `pyd
 
 ## Usage
 
-### Basic Usage
+**CRITICAL RULE:** You must call `setup_logging()` **exactly once** at the very entry point of your application (e.g., in your `main.py`, `app.py`, or CLI entry script). Because it configures the global logging state, you do *not* need to call it in every file. In all other files, simply import and use `get_logger(__name__)`.
 
-Initialize the logging system once at the entry point of your application, then use `get_logger` to create logger instances.
+### Integrating with Project Settings (Pydantic)
+
+If your project already uses `pydantic-settings`, you can easily merge the logging configuration into your main settings class by inheriting from `LoggingSettings`. This allows you to validate all environment variables (both app-specific and logging-specific) in one place.
 
 ```python
-from python_logging.main import setup_logging, get_logger
+from pydantic_settings import BaseSettings
+from python_logging.config import LoggingSettings
+from python_logging.main import setup_logging
 
-# 1. Initialize logging (call this once at startup)
+# Inherit from LoggingSettings to include logging configuration
+class AppSettings(LoggingSettings, BaseSettings):
+    app_name: str = "my-awesome-app"
+    database_url: str
+
+# Instantiate your combined settings
+settings = AppSettings()
+
+# Pass the combined settings to setup_logging
+setup_logging(settings)
+```
+
+### Basic Usage
+
+**In your entry point file (e.g., `main.py`):**
+```python
+from python_logging.main import setup_logging
+
+# 1. Initialize global logging state (call this exactly once)
 setup_logging()
+```
 
-# 2. Get a logger instance
+**In any other file in your project:**
+```python
+from python_logging.main import get_logger
+
+# 2. Get a logger instance for this module
 logger = get_logger(__name__)
 
 # 3. Log messages with structured data
