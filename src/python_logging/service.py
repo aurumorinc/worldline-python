@@ -1,4 +1,4 @@
-# src/python_logging/environments.py
+# src/python_logging/service.py
 import logging
 import sys
 from typing import Any, List, Tuple
@@ -7,10 +7,10 @@ import structlog
 from rich.logging import RichHandler
 
 
-def get_dev_config() -> Tuple[List[Any], List[logging.Handler]]:
+def get_console_renderer_format() -> Tuple[List[Any], List[logging.Handler]]:
     """
-    Returns processors and handlers for the development environment.
-    Uses a colorized console renderer.
+    Returns processors and handlers for the ConsoleRenderer format.
+    Uses a colorized console renderer optimized for servers and workers.
     """
     processors = [
         structlog.dev.ConsoleRenderer(colors=True),
@@ -21,24 +21,10 @@ def get_dev_config() -> Tuple[List[Any], List[logging.Handler]]:
     return processors, [handler]
 
 
-def get_prod_config() -> Tuple[List[Any], List[logging.Handler]]:
+def get_rich_format() -> Tuple[List[Any], List[logging.Handler]]:
     """
-    Returns processors and handlers for the production environment.
-    Uses a JSON renderer for log aggregators.
-    """
-    processors = [
-        structlog.processors.JSONRenderer(),
-    ]
-    
-    handler = logging.StreamHandler(sys.stdout)
-    
-    return processors, [handler]
-
-
-def get_cli_config() -> Tuple[List[Any], List[logging.Handler]]:
-    """
-    Returns processors and handlers for the CLI environment.
-    Uses RichHandler for beautiful terminal output.
+    Returns processors and handlers for the rich format.
+    Uses RichHandler for beautiful terminal output optimized for CLI apps.
     """
     # For RichHandler, we don't want structlog to format the final string,
     # we want it to pass the event dict to standard logging, which RichHandler intercepts.
