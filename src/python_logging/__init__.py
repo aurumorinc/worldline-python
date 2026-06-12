@@ -10,7 +10,7 @@ from python_logging.config import (
     settings,
 )
 from python_logging.integrations import (
-    get_windmill_context,
+    get_windmill_traceparent,
     windmill,
 )
 from python_logging.main import (
@@ -32,7 +32,7 @@ __all__ = [
     "get_console_renderer_format",
     "get_logger",
     "get_rich_format",
-    "get_windmill_context",
+    "get_windmill_traceparent",
     "integrations",
     "main",
     "service",
