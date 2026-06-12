@@ -6,7 +6,8 @@ on:
       - main
 
 jobs:
-  call-central-release:
+  release:
+    if: "!startsWith(github.event.head_commit.message, 'chore: release')"
     uses: aurumorinc/.github/.github/workflows/release.yaml@main
     secrets:
       RELEASE_TOKEN: ${{ secrets.GITHUB_TOKEN }}
