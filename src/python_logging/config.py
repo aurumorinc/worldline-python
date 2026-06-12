@@ -19,11 +19,7 @@ class LoggingSettings(BaseSettings):
     otel_exporter_otlp_logs_endpoint: Optional[str] = None
     traceparent: Optional[str] = None
 
-    model_config = SettingsConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8",
-        extra="ignore",
-    )
+    model_config = SettingsConfigDict()
 
 
 settings = LoggingSettings()
