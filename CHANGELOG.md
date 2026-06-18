@@ -2,11 +2,22 @@
 
 All notable changes to this project will be documented in this file.
 
+## [26.6.2] - 2026-06-18
+
+### 🚀 Features
+
+- Strip OpenTelemetry IDs from log output
+
+### 🐛 Bug Fixes
+
+- Update processors to support list instead of item
+
 ## [26.6.1] - 2026-06-12
 
 ### ⚙️ Miscellaneous Tasks
 
 - Update release workflow job name and condition
+- Release 26.6.1
 
 ## [26.6.0] - 2026-06-12
 
