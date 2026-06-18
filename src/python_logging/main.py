@@ -75,7 +75,7 @@ def setup_logging(settings: Optional[LoggingSettings] = None) -> None:
         # For non-Rich formats, we need to wrap the handler with structlog's formatter
         if settings.stdout_format != StdoutFormat.RICH:
             formatter = structlog.stdlib.ProcessorFormatter(
-                processor=format_processors[0],
+                processors=format_processors,
                 foreign_pre_chain=shared_processors,
             )
             handler.setFormatter(formatter)
