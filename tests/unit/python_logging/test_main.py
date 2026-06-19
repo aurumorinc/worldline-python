@@ -1,9 +1,13 @@
 # tests/unit/python_logging/test_main.py
 import logging
+import sys
+from io import StringIO
 from unittest import mock
 
+import structlog
+
 from python_logging.config import LoggingSettings, StdoutFormat
-from python_logging.main import setup_logging
+from python_logging.main import get_logger, setup_logging
 
 
 @mock.patch("python_logging.main.structlog.configure")
@@ -64,3 +68,32 @@ def test_setup_logging_with_otel(mock_setup_otel, mock_configure):
     handler_types = [type(h) for h in root_logger.handlers]
     assert logging.StreamHandler in handler_types
     assert LoggingHandler in handler_types
+
+
+def test_console_renderer_output_is_clean():
+    """
+    Integration test to verify that the terminal output does NOT
+    contain trace_id, span_id, _record, or _from_structlog keys.
+    """
+    structlog.reset_defaults()
+    
+    # We must patch sys.stdout for StreamHandler initialization
+    out = StringIO()
+    with mock.patch("sys.stdout", out):
+        settings = LoggingSettings(stdout_format=StdoutFormat.CONSOLE_RENDERER)
+        setup_logging(settings)
+
+        logger = get_logger("test_clean")
+        logger.info("This is a clean log message")
+        
+        output_str = out.getvalue()
+        
+        # Verify internal structural keys are not in the output
+        assert "_record" not in output_str
+        assert "_from_structlog" not in output_str
+        assert "trace_id" not in output_str
+        assert "span_id" not in output_str
+        assert "This is a clean log message" in output_str
+        
+    structlog.reset_defaults()
+
