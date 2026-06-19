@@ -34,6 +34,7 @@ def get_console_renderer_format() -> Tuple[List[Any], List[logging.Handler]]:
     """
     processors = [
         remove_otel_context,
+        structlog.stdlib.ProcessorFormatter.remove_processors_meta,
         structlog.dev.ConsoleRenderer(colors=True),
     ]
 
