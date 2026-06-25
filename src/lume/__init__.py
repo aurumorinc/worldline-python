@@ -1,5 +1,5 @@
 # src/lume/__init__.py
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 from lume import config
 from lume import integrations
