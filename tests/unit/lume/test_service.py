@@ -77,9 +77,9 @@ def test_setup_otel_provider_no_endpoint(mock_settings):
 def test_setup_otel_provider_with_endpoint(mock_settings):
     # Arrange
     mock_settings.is_windmill_env = True
-    mock_settings.wm_token = "dummy_token"
-    mock_settings.wm_base_url = "https://app.windmill.dev"
-    mock_settings.wm_workspace = "my_workspace"
+    mock_settings.windmill_token = "dummy_token"
+    mock_settings.windmill_base_url = "https://app.windmill.dev"
+    mock_settings.windmill_workspace = "my_workspace"
 
     # Act
     provider = setup_otel_provider()

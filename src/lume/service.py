@@ -103,16 +103,16 @@ def setup_otel_provider(
 
     tracer_provider = TracerProvider()
 
-    headers = {"Authorization": f"Bearer {current_settings.wm_token}"}
+    headers = {"Authorization": f"Bearer {current_settings.windmill_token}"}
 
     log_endpoint = (
-        f"{current_settings.wm_base_url}/api/w/{current_settings.wm_workspace}/tracing/v1/logs"
-        if current_settings.wm_base_url
+        f"{current_settings.windmill_base_url}/api/w/{current_settings.windmill_workspace}/tracing/v1/logs"
+        if current_settings.windmill_base_url
         else current_settings.otel_exporter_otlp_logs_endpoint
     )
     trace_endpoint = (
-        f"{current_settings.wm_base_url}/api/w/{current_settings.wm_workspace}/tracing/v1/traces"
-        if current_settings.wm_base_url
+        f"{current_settings.windmill_base_url}/api/w/{current_settings.windmill_workspace}/tracing/v1/traces"
+        if current_settings.windmill_base_url
         else current_settings.otel_exporter_otlp_endpoint
     )
 

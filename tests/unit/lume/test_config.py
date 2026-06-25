@@ -97,16 +97,16 @@ def test_settings_precedence_env_over_windmill():
 
 def test_is_windmill_env():
     # Arrange, Act, Assert
-    settings = LoggingSettings(wm_token="t", wm_workspace="w")
+    settings = LoggingSettings(windmill_token="t", windmill_workspace="w")
     assert settings.is_windmill_env is True
 
-    settings = LoggingSettings(wm_token="t", wm_workspace=None)
+    settings = LoggingSettings(windmill_token="t", windmill_workspace=None)
     assert settings.is_windmill_env is False
 
-    settings = LoggingSettings(wm_token=None, wm_workspace="w")
+    settings = LoggingSettings(windmill_token=None, windmill_workspace="w")
     assert settings.is_windmill_env is False
 
-    settings = LoggingSettings(wm_token=None, wm_workspace=None)
+    settings = LoggingSettings(windmill_token=None, windmill_workspace=None)
     assert settings.is_windmill_env is False
 
 

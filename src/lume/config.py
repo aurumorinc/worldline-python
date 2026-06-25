@@ -21,9 +21,9 @@ def resolve_traceparent() -> str:
     """
     from lume.integrations.windmill import get_windmill_traceparent
 
-    wm_tp = get_windmill_traceparent()
-    if wm_tp:
-        return wm_tp
+    windmill_tp = get_windmill_traceparent()
+    if windmill_tp:
+        return windmill_tp
     return generate_traceparent()
 
 
@@ -44,14 +44,14 @@ class LoggingSettings(BaseSettings):
     langfuse_secret_key: Optional[str] = None
     langfuse_host: str = "https://cloud.langfuse.com"
 
-    wm_token: Optional[str] = None
-    wm_workspace: Optional[str] = None
-    wm_base_url: Optional[str] = None
+    windmill_token: Optional[str] = None
+    windmill_workspace: Optional[str] = None
+    windmill_base_url: Optional[str] = None
 
     @computed_field  # type: ignore
     @property
     def is_windmill_env(self) -> bool:
-        return bool(self.wm_token and self.wm_workspace)
+        return bool(self.windmill_token and self.windmill_workspace)
 
     @computed_field  # type: ignore
     @property
