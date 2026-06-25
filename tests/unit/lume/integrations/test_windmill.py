@@ -1,7 +1,7 @@
 import os
 from unittest import mock
 
-from python_logging.integrations.windmill import get_windmill_traceparent
+from lume.integrations.windmill import get_windmill_traceparent
 
 
 @mock.patch.dict(
