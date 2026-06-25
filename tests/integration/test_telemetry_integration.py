@@ -2,7 +2,7 @@ import os
 from unittest import mock
 
 from lume.config import LoggingSettings
-from lume.logging import setup_logging, get_logger
+from lume.integrations import structlog
 from lume import observe
 
 
@@ -31,14 +31,19 @@ def test_telemetry_integration(
     the fully configured pipeline accurately translates custom structured
     logging events into W3C compliant OpenTelemetry LogRecords and spans.
     """
+    # Reset structlog
+    structlog._LUME_CONFIGURED = False
+    structlog.reset_defaults()
+
     # Arrange
     settings = LoggingSettings()
 
     # Act
     with mock.patch("lume.service.settings", settings):
-        setup_logging(settings)
+        # Trigger lazy setup with explicitly mocked settings
+        structlog._setup(settings)
 
-        logger = get_logger("integration_logger")
+        logger = structlog.get_logger("integration_logger")
         logger.info("integration test", user_id="123")
 
     # Assert Vendor SDKs initialized
