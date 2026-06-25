@@ -1,21 +1,25 @@
 [project]
 name = "lume"
 version = "1.0.1"
-description = "Org-level Python logging package"
+description = "Lume is a unified observability and telemetry bootstrapper for Python"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "structlog>=24.1.0",
-    "pydantic-settings>=2.0.0",
-    "rich>=13.0.0",
-    "opentelemetry-api>=1.20.0",
-    "opentelemetry-sdk>=1.20.0",
-    "opentelemetry-exporter-otlp>=1.20.0",
-    "colorama>=0.4.6",
-    "sentry-sdk>=3.0.0a7",
-    "posthog>=7.20.3",
-    "langfuse>=4.10.0",
+    "structlog>=24",
+    "pydantic-settings>=2",
+    "rich>=13",
+    "opentelemetry-api>=1",
+    "opentelemetry-sdk>=1",
+    "opentelemetry-exporter-otlp>=1",
+    "colorama>=0",
+    "sentry-sdk>=2",
+    "posthog>=7",
+    "langfuse>=4",
 ]
+
+[tool.pdm]
+save_strategy = "minimum"
+update_strategy = "eager"
 
 [build-system]
 requires = ["hatchling"]
