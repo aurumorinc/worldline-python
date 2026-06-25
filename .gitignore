@@ -228,3 +228,4 @@ __marimo__/
 .agents/skills/posthog/modules/posthog-python
 .agents/skills/sentry/modules/sentry-python
 .agents/skills/windmill/modules/windmill
+.agents/skills/langfuse-python/modules/langfuse-python
