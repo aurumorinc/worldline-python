@@ -1,4 +1,5 @@
 # src/lume/integrations/__init__.py
+from lume.integrations import structlog
 from lume.integrations.langfuse import (
     langfuse,
     observe,
@@ -19,4 +20,5 @@ __all__ = [
     "observe",
     "posthog",
     "sentry_sdk",
+    "structlog",
 ]

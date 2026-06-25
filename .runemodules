@@ -13,3 +13,6 @@
 [runemodule ".agents/skills/langfuse-python/modules/langfuse-python"]
 	url = https://github.com/langfuse/langfuse-python/tree/main
 	path = .agents/skills/langfuse-python/modules/langfuse-python
+[runemodule ".agents/skills/structlog/modules/structlog"]
+	url = https://github.com/hynek/structlo/tree/main
+	path = .agents/skills/structlog/modules/structlog

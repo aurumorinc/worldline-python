@@ -229,3 +229,4 @@ __marimo__/
 .agents/skills/sentry/modules/sentry-python
 .agents/skills/windmill/modules/windmill
 .agents/skills/langfuse-python/modules/langfuse-python
+.agents/skills/structlog/modules/structlog

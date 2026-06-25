@@ -1,10 +1,9 @@
 import uuid
-import structlog
 from concurrent.futures import ThreadPoolExecutor
 from io import StringIO
 from unittest import mock
 
-from lume.logging import setup_logging, get_logger
+from lume.integrations import structlog
 from lume.config import LoggingSettings
 
 
@@ -13,13 +12,17 @@ def test_thread_safe_contextvars():
     Test that bound contextvars in structlog do not bleed across threads
     under concurrent load.
     """
+    # Reset structlog
+    structlog._LUME_CONFIGURED = False
+    structlog.reset_defaults()
+
     # Arrange
     settings = LoggingSettings()
     out = StringIO()
 
     with mock.patch("sys.stdout", out):
-        setup_logging(settings)
-        logger = get_logger("concurrency_test")
+        structlog._setup(settings)
+        logger = structlog.get_logger("concurrency_test")
 
         num_threads = 10
         messages_per_thread = 100

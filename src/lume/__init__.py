@@ -3,7 +3,6 @@ __version__ = "1.0.2"
 
 from lume import config
 from lume import integrations
-from lume import logging
 from lume import service
 
 from lume.config import (
@@ -18,10 +17,7 @@ from lume.integrations import (
     observe,
     posthog,
     sentry_sdk,
-)
-from lume.logging import (
-    get_logger,
-    setup_logging,
+    structlog,
 )
 from lume.service import (
     add_otel_context,
@@ -36,11 +32,9 @@ __all__ = [
     "config",
     "generate_traceparent",
     "get_console_format",
-    "get_logger",
     "get_windmill_traceparent",
     "integrations",
     "langfuse",
-    "logging",
     "observe",
     "posthog",
     "remove_otel_context",
@@ -48,6 +42,6 @@ __all__ = [
     "sentry_sdk",
     "service",
     "settings",
-    "setup_logging",
     "setup_otel_provider",
+    "structlog",
 ]
