@@ -1,6 +1,6 @@
 [project]
 name = "worldline"
-version = "4.0.0"
+version = "3.0.1"
 description = "Worldline is a unified observability and telemetry bootstrapper for Python"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -28,7 +28,7 @@ build-backend = "hatchling.build"
 [project.optional-dependencies]
 dev = [
     "pytest>=7.0.0",
-    "pytest-cov>=4.0.0",
+    "pytest-cov>=3.0.1",
     "mkinit>=1.2.0",
     "ruff>=0.15.16",
     "hypothesis>=6.0.0",
@@ -37,7 +37,7 @@ dev = [
 ]
 
 [tool.bumpver]
-current_version = "4.0.0"
+current_version = "3.0.1"
 version_pattern = "MAJOR.MINOR.PATCH"
 commit = false
 tag = false
