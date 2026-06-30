@@ -10,10 +10,7 @@ from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from structlog.dev import (
-    Column,
     ConsoleRenderer,
-    KeyValueColumnFormatter,
-    LogLevelColumnFormatter,
     RichTracebackFormatter,
 )
 
@@ -39,45 +36,10 @@ def get_console_format() -> Tuple[List[Any], List[logging.Handler]]:
     Uses structlog.dev.ConsoleRenderer with RichTracebackFormatter for
     beautiful terminal output and traceback rendering.
     """
-    styles = ConsoleRenderer.get_default_column_styles(colors=True)
-
     console_renderer = ConsoleRenderer(
-        columns=[
-            Column(
-                "timestamp",
-                formatter=KeyValueColumnFormatter(
-                    key_style=None,
-                    value_style=styles.timestamp,
-                    reset_style=styles.reset,
-                    value_repr=str,
-                ),
-            ),
-            Column(
-                "level",
-                formatter=LogLevelColumnFormatter(
-                    level_styles=ConsoleRenderer.get_default_level_styles(colors=True),
-                    reset_style=styles.reset,
-                ),
-            ),
-            Column(
-                "event",
-                formatter=KeyValueColumnFormatter(
-                    key_style=None,
-                    value_style=styles.bright,
-                    reset_style=styles.reset,
-                    value_repr=str,
-                ),
-            ),
-            Column(
-                "",
-                formatter=KeyValueColumnFormatter(
-                    key_style=styles.kv_key,
-                    value_style=styles.kv_value,
-                    reset_style=styles.reset,
-                    value_repr=repr,
-                ),
-            ),
-        ],
+        colors=True,
+        pad_event_to=40,
+        sort_keys=False,
         exception_formatter=RichTracebackFormatter(
             show_locals=True, width=110, color_system="truecolor"
         ),
