@@ -23,7 +23,6 @@ from worldline.service import (
     add_otel_context,
     get_console_format,
     remove_otel_context,
-    rich_renderer,
     setup_otel_provider,
 )
 
@@ -40,7 +39,6 @@ __all__ = [
     "posthog",
     "remove_otel_context",
     "resolve_traceparent",
-    "rich_renderer",
     "sentry_sdk",
     "service",
     "settings",

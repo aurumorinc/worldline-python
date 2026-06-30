@@ -1,5 +1,6 @@
 # src/worldline/service.py
 import logging
+import sys
 from typing import Any, Dict, List, Optional, Tuple
 
 import structlog
@@ -8,7 +9,13 @@ from opentelemetry._logs import set_logger_provider
 from opentelemetry.exporter.otlp.proto.http._log_exporter import OTLPLogExporter
 from opentelemetry.sdk._logs import LoggerProvider
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
-from rich.logging import RichHandler
+from structlog.dev import (
+    Column,
+    ConsoleRenderer,
+    KeyValueColumnFormatter,
+    LogLevelColumnFormatter,
+    RichTracebackFormatter,
+)
 
 from worldline.config import settings
 
@@ -26,39 +33,63 @@ def remove_otel_context(
     return event_dict
 
 
-def rich_renderer(
-    logger: logging.Logger, method_name: str, event_dict: Dict[str, Any]
-) -> str:
-    """
-    Renders structured kwargs to a formatted string using rich markup.
-    """
-    event = event_dict.pop("event", "")
-
-    parts = [str(event)]
-    for key, value in event_dict.items():
-        parts.append(f"[dim]{key}=[/dim][cyan]{value}[/cyan]")
-
-    return " ".join(parts)
-
-
 def get_console_format() -> Tuple[List[Any], List[logging.Handler]]:
     """
-    Returns processors and handlers for the rich console format.
-    Uses RichHandler for beautiful terminal output optimized for CLI apps.
+    Returns processors and handlers for the structlog console format.
+    Uses structlog.dev.ConsoleRenderer with RichTracebackFormatter for
+    beautiful terminal output and traceback rendering.
     """
+    styles = ConsoleRenderer.get_default_column_styles(colors=True)
+
+    console_renderer = ConsoleRenderer(
+        columns=[
+            Column(
+                "timestamp",
+                formatter=KeyValueColumnFormatter(
+                    key_style=None,
+                    value_style=styles.timestamp,
+                    reset_style=styles.reset,
+                    value_repr=str,
+                ),
+            ),
+            Column(
+                "level",
+                formatter=LogLevelColumnFormatter(
+                    level_styles=ConsoleRenderer.get_default_level_styles(colors=True),
+                    reset_style=styles.reset,
+                ),
+            ),
+            Column(
+                "event",
+                formatter=KeyValueColumnFormatter(
+                    key_style=None,
+                    value_style=styles.bright,
+                    reset_style=styles.reset,
+                    value_repr=str,
+                ),
+            ),
+            Column(
+                "",
+                formatter=KeyValueColumnFormatter(
+                    key_style=styles.kv_key,
+                    value_style=styles.kv_value,
+                    reset_style=styles.reset,
+                    value_repr=repr,
+                ),
+            ),
+        ],
+        exception_formatter=RichTracebackFormatter(
+            show_locals=True, width=110, color_system="truecolor"
+        ),
+    )
+
     processors = [
         remove_otel_context,
         structlog.stdlib.ProcessorFormatter.remove_processors_meta,
-        rich_renderer,
+        console_renderer,
     ]
 
-    handler = RichHandler(
-        rich_tracebacks=True,
-        markup=True,
-        show_time=True,
-        show_level=True,
-        show_path=False,
-    )
+    handler = logging.StreamHandler(sys.stdout)
 
     return processors, [handler]
 

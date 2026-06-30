@@ -49,8 +49,8 @@ def test_thread_safe_contextvars():
 
         import re
 
-        expected_matches = re.finditer(r"expected_uuid=([a-f0-9\-]+)", output_str)
-        thread_matches = re.finditer(r"thread_uuid=([a-f0-9\-]+)", output_str)
+        expected_matches = re.finditer(r"expected_uuid='([a-f0-9\-]+)'", output_str)
+        thread_matches = re.finditer(r"thread_uuid='([a-f0-9\-]+)'", output_str)
 
         expected_list = [m.group(1) for m in expected_matches]
         thread_list = [m.group(1) for m in thread_matches]

@@ -50,3 +50,9 @@ push = false
 "src/worldline/__init__.py" = [
     '__version__ = "{version}"',
 ]
+
+[tool.pyrefly]
+project-includes = [
+    "**/*.py*",
+    "**/*.ipynb",
+]

@@ -64,8 +64,11 @@ def test_telemetry_integration(
 
     # Assert OpenTelemetry Output
     from opentelemetry._logs import get_logger_provider
+    import typing
+    from opentelemetry.sdk._logs import LoggerProvider
 
-    get_logger_provider().force_flush()
+    provider = typing.cast(LoggerProvider, get_logger_provider())
+    provider.force_flush()
 
     log_exporter = in_memory_otel_exporters["log_exporter"]
     in_memory_otel_exporters["span_exporter"]

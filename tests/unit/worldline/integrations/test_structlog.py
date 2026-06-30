@@ -108,20 +108,16 @@ def test_dynamic_attribute():
 
 def test_standard_logging_capture():
     """Integration test to verify standard logging uses structlog format."""
-    from rich.console import Console
-
     out = StringIO()
 
     # Trigger auto-setup
     worldline_structlog.get_logger("test_capture")
 
-    # Redirect console output for rich handler
+    # Redirect console output for StreamHandler
     root_logger = logging.getLogger()
     for handler in root_logger.handlers:
-        from rich.logging import RichHandler
-
-        if isinstance(handler, RichHandler):
-            handler.console = Console(file=out, color_system=None)
+        if isinstance(handler, logging.StreamHandler):
+            handler.stream = out
 
     # Act
     std_logger = logging.getLogger("test_capture")

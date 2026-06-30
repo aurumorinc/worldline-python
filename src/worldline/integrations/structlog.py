@@ -34,7 +34,7 @@ from structlog import (
 if TYPE_CHECKING:
     from worldline.config import LoggingSettings
 
-_WORLDLINE_CONFIGURED = False
+_WORLDLINE_CONFIGURED: bool = False
 
 
 def _setup(settings: Optional["LoggingSettings"] = None) -> None:
@@ -62,8 +62,8 @@ def _setup(settings: Optional["LoggingSettings"] = None) -> None:
     if settings.posthog_api_key:
         from worldline.integrations.posthog import posthog
 
-        posthog.project_api_key = settings.posthog_api_key
-        posthog.host = settings.posthog_host
+        posthog.project_api_key = settings.posthog_api_key  # type: ignore
+        posthog.host = settings.posthog_host  # type: ignore
 
     # 3. Langfuse Setup
     if settings.langfuse_public_key:

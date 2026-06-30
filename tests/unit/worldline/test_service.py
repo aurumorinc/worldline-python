@@ -5,6 +5,7 @@ from unittest import mock
 
 from worldline.service import (
     add_otel_context,
+    get_console_format,
     remove_otel_context,
     setup_otel_provider,
 )
@@ -123,3 +124,20 @@ def test_remove_otel_context_missing_keys():
     # Assert
     assert result == {"event": "test message"}
     assert result is not event_dict  # Still returns a copy
+
+
+def test_get_console_format():
+    """Test get_console_format returns the expected processors and handlers."""
+    import sys
+    import structlog
+
+    processors, handlers = get_console_format()
+
+    assert len(processors) == 3
+    assert processors[0] == remove_otel_context
+    assert processors[1] == structlog.stdlib.ProcessorFormatter.remove_processors_meta
+    assert isinstance(processors[2], structlog.dev.ConsoleRenderer)
+
+    assert len(handlers) == 1
+    assert isinstance(handlers[0], logging.StreamHandler)
+    assert handlers[0].stream is sys.stdout
