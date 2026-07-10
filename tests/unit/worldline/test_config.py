@@ -4,13 +4,13 @@ import re
 from unittest import mock
 import pytest
 
-from worldline.config import LoggingSettings, generate_traceparent
+from worldline.config import WorldlineSettings, generate_traceparent
 
 
 def test_default_settings():
     """Test that default settings are correctly applied and traceparent is generated."""
     # Arrange & Act
-    settings = LoggingSettings()
+    settings = WorldlineSettings()
 
     # Assert
     assert settings.log_level == "INFO"
@@ -40,7 +40,7 @@ def test_default_settings():
 def test_settings_from_env():
     """Test that settings are correctly loaded from environment variables."""
     # Arrange & Act
-    settings = LoggingSettings()
+    settings = WorldlineSettings()
 
     # Assert
     assert settings.log_level == "DEBUG"
@@ -63,7 +63,7 @@ def test_settings_from_env():
 def test_settings_from_windmill_env():
     """Test that settings correctly fallback to WM_TRACEPARENT."""
     # Arrange & Act
-    settings = LoggingSettings()
+    settings = WorldlineSettings()
 
     # Assert
     assert (
@@ -84,7 +84,7 @@ def test_settings_from_windmill_env():
 def test_settings_precedence_env_over_windmill():
     """Test that TRACEPARENT takes precedence over WM_TRACEPARENT."""
     # Arrange & Act
-    settings = LoggingSettings()
+    settings = WorldlineSettings()
 
     # Assert
     assert (
@@ -97,27 +97,51 @@ def test_settings_precedence_env_over_windmill():
 
 def test_is_windmill_env():
     # Arrange, Act, Assert
-    settings = LoggingSettings(windmill_token="t", windmill_workspace="w")
+    settings = WorldlineSettings(windmill_token="t", windmill_workspace="w")
     assert settings.is_windmill_env is True
 
-    settings = LoggingSettings(windmill_token="t", windmill_workspace=None)
+    settings = WorldlineSettings(windmill_token="t", windmill_workspace=None)
     assert settings.is_windmill_env is False
 
-    settings = LoggingSettings(windmill_token=None, windmill_workspace="w")
+    settings = WorldlineSettings(windmill_token=None, windmill_workspace="w")
     assert settings.is_windmill_env is False
 
-    settings = LoggingSettings(windmill_token=None, windmill_workspace=None)
+    settings = WorldlineSettings(windmill_token=None, windmill_workspace=None)
     assert settings.is_windmill_env is False
 
 
 def test_vendor_defaults():
     # Arrange & Act
-    settings = LoggingSettings()
+    settings = WorldlineSettings()
 
     # Assert
     assert settings.posthog_host == "https://us.i.posthog.com"
-    assert settings.langfuse_host == "https://cloud.langfuse.com"
+    assert settings.langfuse_base_url == "https://cloud.langfuse.com"
     assert settings.sentry_dsn is None
+
+
+def test_worldline_settings_populates_environ():
+    """Test that instantiating WorldlineSettings populates os.environ correctly."""
+    # Arrange
+    test_env = {
+        "langfuse_public_key": "lf-pub-key-123",
+        "langfuse_secret_key": "lf-sec-key-456",
+        "langfuse_base_url": "https://custom.langfuse.com",
+        "posthog_api_key": "ph-api-key-789",
+        "posthog_host": "https://custom.posthog.com",
+        "sentry_dsn": "https://dummy@sentry.io/123",
+    }
+    
+    # Act
+    WorldlineSettings(**test_env)
+
+    # Assert
+    assert os.environ.get("LANGFUSE_PUBLIC_KEY") == "lf-pub-key-123"
+    assert os.environ.get("LANGFUSE_SECRET_KEY") == "lf-sec-key-456"
+    assert os.environ.get("LANGFUSE_BASE_URL") == "https://custom.langfuse.com"
+    assert os.environ.get("POSTHOG_API_KEY") == "ph-api-key-789"
+    assert os.environ.get("POSTHOG_HOST") == "https://custom.posthog.com"
+    assert os.environ.get("SENTRY_DSN") == "https://dummy@sentry.io/123"
 
 
 def test_generate_traceparent():
@@ -135,7 +159,7 @@ def test_generate_traceparent():
 def test_malformed_traceparent_fails():
     """Test that setting a malformed traceparent that doesn't split to 4 parts raises an exception on computed access."""
     # Arrange & Act
-    settings = LoggingSettings(traceparent="malformed")
+    settings = WorldlineSettings(traceparent="malformed")
 
     # Assert
     with pytest.raises(IndexError):
