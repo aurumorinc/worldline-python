@@ -32,12 +32,12 @@ from structlog import (
 )
 
 if TYPE_CHECKING:
-    from worldline.config import LoggingSettings
+    from worldline.config import WorldlineSettings
 
 _WORLDLINE_CONFIGURED: bool = False
 
 
-def _setup(settings: Optional["LoggingSettings"] = None) -> None:
+def _setup(settings: Optional["WorldlineSettings"] = None) -> None:
     """
     Internal zero-config initialization.
     Configures structlog and routes standard logging through it.
@@ -67,12 +67,12 @@ def _setup(settings: Optional["LoggingSettings"] = None) -> None:
 
     # 3. Langfuse Setup
     if settings.langfuse_public_key:
-        from worldline.integrations.langfuse import langfuse
+        import langfuse
 
         langfuse.Langfuse(
             public_key=settings.langfuse_public_key,
             secret_key=settings.langfuse_secret_key,
-            host=settings.langfuse_host,
+            host=settings.langfuse_base_url,
         )
 
     # Determine log level
