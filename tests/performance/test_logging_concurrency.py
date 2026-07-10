@@ -4,7 +4,7 @@ from io import StringIO
 from unittest import mock
 
 from worldline.integrations import structlog
-from worldline.config import LoggingSettings
+from worldline.config import WorldlineSettings
 
 
 def test_thread_safe_contextvars():
@@ -17,7 +17,7 @@ def test_thread_safe_contextvars():
     structlog.reset_defaults()
 
     # Arrange
-    settings = LoggingSettings()
+    settings = WorldlineSettings()
     out = StringIO()
 
     with mock.patch("sys.stdout", out):

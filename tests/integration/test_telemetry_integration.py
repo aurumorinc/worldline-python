@@ -1,9 +1,9 @@
 import os
 from unittest import mock
 
-from worldline.config import LoggingSettings
+from worldline.config import WorldlineSettings
 from worldline.integrations import structlog
-from worldline import observe
+from langfuse import observe
 
 
 @mock.patch.dict(
@@ -22,7 +22,7 @@ from worldline import observe
 )
 @mock.patch("worldline.integrations.sentry.sentry_sdk", create=True)
 @mock.patch("worldline.integrations.posthog.posthog", create=True)
-@mock.patch("worldline.integrations.langfuse.langfuse.Langfuse", create=True)
+@mock.patch("langfuse.Langfuse")
 def test_telemetry_integration(
     mock_langfuse, mock_posthog, mock_sentry, in_memory_otel_exporters
 ):
@@ -36,7 +36,7 @@ def test_telemetry_integration(
     structlog.reset_defaults()
 
     # Arrange
-    settings = LoggingSettings()
+    settings = WorldlineSettings()
 
     # Act
     with mock.patch("worldline.service.settings", settings):
