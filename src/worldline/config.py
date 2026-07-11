@@ -44,6 +44,7 @@ class WorldlineSettings(BaseSettings):
     langfuse_public_key: Optional[str] = None
     langfuse_secret_key: Optional[str] = None
     langfuse_base_url: str = "https://cloud.langfuse.com"
+    langfuse_host: Optional[str] = None
 
     windmill_token: Optional[str] = None
     windmill_workspace: Optional[str] = None
@@ -74,8 +75,11 @@ class WorldlineSettings(BaseSettings):
             os.environ["LANGFUSE_PUBLIC_KEY"] = self.langfuse_public_key
         if self.langfuse_secret_key:
             os.environ["LANGFUSE_SECRET_KEY"] = self.langfuse_secret_key
-        if self.langfuse_base_url:
-            os.environ["LANGFUSE_BASE_URL"] = self.langfuse_base_url
+        
+        active_url = self.langfuse_host or self.langfuse_base_url
+        if active_url:
+            os.environ["LANGFUSE_BASE_URL"] = active_url
+            os.environ["LANGFUSE_HOST"] = active_url
 
         if self.posthog_api_key:
             os.environ["POSTHOG_API_KEY"] = self.posthog_api_key

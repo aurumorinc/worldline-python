@@ -3,19 +3,22 @@ from io import StringIO
 from unittest import mock
 
 import pytest
+import structlog
 
-from worldline.integrations import structlog as worldline_structlog
+from worldline.service import setup
 
 
 @pytest.fixture(autouse=True)
-def reset_structlog_state():
+def reset_state():
     """Reset the module-level state before and after each test."""
-    worldline_structlog._WORLDLINE_CONFIGURED = False
-    worldline_structlog.reset_defaults()
+    import worldline.service as service_module
+    
+    service_module._WORLDLINE_CONFIGURED = False
+    structlog.reset_defaults()
     logging.getLogger().handlers.clear()
     yield
-    worldline_structlog._WORLDLINE_CONFIGURED = False
-    worldline_structlog.reset_defaults()
+    service_module._WORLDLINE_CONFIGURED = False
+    structlog.reset_defaults()
     logging.getLogger().handlers.clear()
 
 
@@ -24,7 +27,7 @@ def test_standard_logging_capture():
     out = StringIO()
 
     # Trigger auto-setup
-    worldline_structlog.get_logger("test_capture")
+    setup()
 
     # Redirect console output for StreamHandler
     root_logger = logging.getLogger()
@@ -53,9 +56,9 @@ def test_setup_configures_otel(in_memory_otel_exporters):
     )
 
     with mock.patch("worldline.service.settings", settings):
-        worldline_structlog._setup(settings)
+        setup(settings)
 
-        logger = worldline_structlog.get_logger("integration_logger")
+        logger = structlog.get_logger("integration_logger")
         logger.info("integration test", user_id="123")
 
     from opentelemetry._logs import get_logger_provider

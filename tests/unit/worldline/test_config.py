@@ -120,6 +120,7 @@ def test_vendor_defaults():
     assert settings.sentry_dsn is None
 
 
+@mock.patch.dict(os.environ, {}, clear=True)
 def test_worldline_settings_populates_environ():
     """Test that instantiating WorldlineSettings populates os.environ correctly."""
     # Arrange
@@ -139,9 +140,27 @@ def test_worldline_settings_populates_environ():
     assert os.environ.get("LANGFUSE_PUBLIC_KEY") == "lf-pub-key-123"
     assert os.environ.get("LANGFUSE_SECRET_KEY") == "lf-sec-key-456"
     assert os.environ.get("LANGFUSE_BASE_URL") == "https://custom.langfuse.com"
+    assert os.environ.get("LANGFUSE_HOST") == "https://custom.langfuse.com"
     assert os.environ.get("POSTHOG_API_KEY") == "ph-api-key-789"
     assert os.environ.get("POSTHOG_HOST") == "https://custom.posthog.com"
     assert os.environ.get("SENTRY_DSN") == "https://dummy@sentry.io/123"
+
+
+@mock.patch.dict(os.environ, {}, clear=True)
+def test_worldline_settings_populates_environ_with_langfuse_host():
+    """Test that langfuse_host takes precedence over langfuse_base_url."""
+    # Arrange
+    test_env = {
+        "langfuse_base_url": "https://ignored.langfuse.com",
+        "langfuse_host": "https://prioritized.langfuse.com",
+    }
+    
+    # Act
+    WorldlineSettings(**test_env)
+
+    # Assert
+    assert os.environ.get("LANGFUSE_BASE_URL") == "https://prioritized.langfuse.com"
+    assert os.environ.get("LANGFUSE_HOST") == "https://prioritized.langfuse.com"
 
 
 def test_generate_traceparent():
