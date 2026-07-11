@@ -12,7 +12,8 @@ Worldline configuration is handled via environment variables (or a `.env` file) 
 | `POSTHOG_HOST` | `https://us.i.posthog.com` | Host URL for PostHog. |
 | `LANGFUSE_PUBLIC_KEY` | `None` | Public Key for Langfuse. |
 | `LANGFUSE_SECRET_KEY` | `None` | Secret Key for Langfuse. If both keys are provided, Langfuse is initialized. |
-| `LANGFUSE_HOST` | `https://cloud.langfuse.com` | Host URL for Langfuse. |
+| `LANGFUSE_BASE_URL` | `https://cloud.langfuse.com` | Primary host URL for Langfuse. |
+| `LANGFUSE_HOST` | `None` | Optional legacy fallback for Langfuse host URL. |
 | `WINDMILL_TOKEN` | `None` | Windmill Workspace Token. Required for Windmill OTEL. |
 | `WINDMILL_WORKSPACE` | `None` | Windmill Workspace Name. Required for Windmill OTEL. |
 | `WINDMILL_BASE_URL` | `None` | Base URL for Windmill, used for resolving OTEL endpoints. |

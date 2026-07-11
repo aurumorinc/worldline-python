@@ -1,13 +1,16 @@
 # Usage Guide
 
-**CRITICAL RULE:** Telemetry and logging are eagerly initialized on package import. By simply importing from `worldline` (e.g., `from worldline import structlog`), the global observability state is configured automatically via environment variables.
+**CRITICAL RULE:** Telemetry and logging are eagerly initialized on Python startup via zero-touch auto-instrumentation (using a `.pth` file). By simply installing `worldline`, the global observability state is configured automatically via environment variables before your application code even runs.
+
+If you ever need to disable this behavior (e.g., for certain testing environments), set the environment variable:
+`WORLDLINE_DISABLE_AUTO_INSTRUMENTATION=true`
 
 ## Basic Logging Usage
 
-Because `worldline` modifies the global `structlog` state at initialization, you can use the standard `structlog` package or our exported proxy throughout your codebase.
+Because `worldline` modifies the global `structlog` state at initialization, you use the standard `structlog` package directly throughout your codebase.
 
 ```python
-from worldline import structlog
+import structlog
 
 # 1. Get a logger instance for this module
 logger = structlog.get_logger(__name__)
@@ -26,7 +29,7 @@ except ZeroDivisionError:
 You can bind context variables to a logger so they are included in all subsequent log calls from that logger.
 
 ```python
-from worldline import structlog
+import structlog
 
 logger = structlog.get_logger(__name__).bind(request_id="req-abc-123")
 
@@ -37,12 +40,14 @@ logger.info("request_completed", status=200)
 # Includes: request_id="req-abc-123", status=200
 ```
 
-## Vendor Facades
+## Vendor Integrations
 
-`worldline` exports Sentry, PostHog, and Langfuse directly. You do not need to install these dependencies manually in your consumer application; they are natively managed and exposed by `worldline`.
+`worldline` automatically initializes Sentry, PostHog, and Langfuse globally if their respective configuration variables are present in the environment. You simply import the standard vendor libraries directly in your consumer application.
 
 ```python
-from worldline import sentry_sdk, posthog, langfuse, observe
+import sentry_sdk
+import posthog
+from langfuse.decorators import observe
 
 # Sentry
 sentry_sdk.capture_message("Something went wrong")
@@ -50,7 +55,7 @@ sentry_sdk.capture_message("Something went wrong")
 # PostHog
 posthog.capture("user_123", "event_name", properties={"key": "value"})
 
-# Langfuse (via decorator)
+# Langfuse (via decorator natively from the package)
 @observe(as_type="generation")
 def my_llm_call(prompt):
     return "LLM Response"

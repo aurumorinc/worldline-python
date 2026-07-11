@@ -5,7 +5,7 @@ Worldline is a unified observability and telemetry bootstrapper for Python. It p
 ## Features
 
 - **Zero-Config Bootstrapper**: Simply importing from `worldline` eagerly configures your entire telemetry stack (Logging, Sentry, PostHog, Langfuse, and OpenTelemetry) based on the presence of environment variables.
-- **Submodule Vendor Re-export**: Access Sentry, PostHog, and Langfuse natively directly through `worldline` (e.g., `from worldline import sentry_sdk`). This preserves original typings and API surfaces while keeping dependency versions centralized in this package.
+- **Submodule Vendor Re-export**: Access Sentry and PostHog natively directly through `worldline` (e.g., `from worldline import sentry_sdk`). This preserves original typings and API surfaces while keeping dependency versions centralized in this package. For Langfuse, please import directly from the `langfuse` package.
 - **Structured Logging**: Powered by `structlog` for consistent, machine-readable logs.
 - **Decoupled Transports**: 
   - **Terminal Transport (stdout)**: Always active, beautifully formatted with `rich`.
