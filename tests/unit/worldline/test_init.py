@@ -54,7 +54,7 @@ def test_init_catches_setup_exceptions(mock_setup):
 @mock.patch("worldline.service.setup")
 def test_init_idempotency(mock_setup):
     """Test that initialization only occurs once."""
-    sys._WORLDLINE_INITIALIZED = True
-
+    sys._WORLDLINE_INITIALIZED = True  # type: ignore
+    
     importlib.reload(worldline)
     mock_setup.assert_not_called()

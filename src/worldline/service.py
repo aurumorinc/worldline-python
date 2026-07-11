@@ -40,8 +40,8 @@ def setup(settings_override: Optional[Any] = None) -> None:
     if current_settings.posthog_api_key:
         import posthog
 
-        posthog.project_api_key = current_settings.posthog_api_key
-        posthog.host = current_settings.posthog_host
+        posthog.project_api_key = current_settings.posthog_api_key  # type: ignore
+        posthog.host = current_settings.posthog_host  # type: ignore
 
     # 3. Langfuse Setup
     if current_settings.langfuse_public_key:
