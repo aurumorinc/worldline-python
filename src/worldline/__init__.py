@@ -1,47 +1,19 @@
 # src/worldline/__init__.py
 __version__ = "2.0.1"
 
-from worldline import config
-from worldline import integrations
-from worldline import service
+import os
+import sys
 
-from worldline.config import (
-    LoggingSettings,
-    generate_traceparent,
-    resolve_traceparent,
-    settings,
-)
-from worldline.integrations import (
-    get_windmill_traceparent,
-    langfuse,
-    observe,
-    posthog,
-    sentry_sdk,
-    structlog,
-)
-from worldline.service import (
-    add_otel_context,
-    get_console_format,
-    remove_otel_context,
-    setup_otel_provider,
-)
+# Auto-instrumentation execution block
+if not getattr(sys, "_WORLDLINE_INITIALIZED", False):
+    setattr(sys, "_WORLDLINE_INITIALIZED", True)
 
-__all__ = [
-    "LoggingSettings",
-    "add_otel_context",
-    "config",
-    "generate_traceparent",
-    "get_console_format",
-    "get_windmill_traceparent",
-    "integrations",
-    "langfuse",
-    "observe",
-    "posthog",
-    "remove_otel_context",
-    "resolve_traceparent",
-    "sentry_sdk",
-    "service",
-    "settings",
-    "setup_otel_provider",
-    "structlog",
-]
+    if os.environ.get("WORLDLINE_DISABLE_AUTO_INSTRUMENTATION", "").lower() != "true":
+        try:
+            from worldline.service import setup
+
+            setup()
+        except Exception as e:
+            sys.stderr.write(f"Worldline auto-instrumentation failed: {e}\n")
+
+__all__ = ["__version__"]

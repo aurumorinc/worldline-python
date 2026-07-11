@@ -17,6 +17,50 @@ from structlog.dev import (
 from worldline.config import settings
 
 
+_WORLDLINE_CONFIGURED: bool = False
+
+
+def setup(settings_override: Optional[Any] = None) -> None:
+    """
+    Orchestrates the setup of all Worldline integrations (Sentry, PostHog, Langfuse, Structlog).
+    """
+    global _WORLDLINE_CONFIGURED
+    if _WORLDLINE_CONFIGURED:
+        return
+
+    current_settings = settings_override if settings_override else settings
+
+    # 1. Sentry Setup
+    if current_settings.sentry_dsn:
+        import sentry_sdk
+
+        sentry_sdk.init(dsn=current_settings.sentry_dsn)
+
+    # 2. PostHog Setup
+    if current_settings.posthog_api_key:
+        import posthog
+
+        setattr(posthog, "project_api_key", current_settings.posthog_api_key)
+        setattr(posthog, "host", current_settings.posthog_host)
+
+    # 3. Langfuse Setup
+    if current_settings.langfuse_public_key:
+        import langfuse
+
+        langfuse.Langfuse(
+            public_key=current_settings.langfuse_public_key,
+            secret_key=current_settings.langfuse_secret_key,
+            host=current_settings.langfuse_host or current_settings.langfuse_base_url,
+        )
+
+    # 4. Structlog Setup
+    from worldline.integrations.structlog import setup_structlog
+
+    setup_structlog(current_settings)
+
+    _WORLDLINE_CONFIGURED = True
+
+
 def remove_otel_context(
     logger: logging.Logger, method_name: str, event_dict: Dict[str, Any]
 ) -> Dict[str, Any]:

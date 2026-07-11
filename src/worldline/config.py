@@ -1,6 +1,7 @@
 # src/worldline/config.py
+import os
 import secrets
-from typing import Optional
+from typing import Any, Optional
 
 from pydantic import Field, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -27,7 +28,7 @@ def resolve_traceparent() -> str:
     return generate_traceparent()
 
 
-class LoggingSettings(BaseSettings):
+class WorldlineSettings(BaseSettings):
     """Configuration for the lume package."""
 
     log_level: str = "INFO"
@@ -42,7 +43,8 @@ class LoggingSettings(BaseSettings):
 
     langfuse_public_key: Optional[str] = None
     langfuse_secret_key: Optional[str] = None
-    langfuse_host: str = "https://cloud.langfuse.com"
+    langfuse_base_url: str = "https://cloud.langfuse.com"
+    langfuse_host: Optional[str] = None
 
     windmill_token: Optional[str] = None
     windmill_workspace: Optional[str] = None
@@ -67,5 +69,25 @@ class LoggingSettings(BaseSettings):
 
     model_config = SettingsConfigDict()
 
+    def model_post_init(self, __context: Any) -> None:
+        """Propagate settings to environment variables for native SDKs to pick up."""
+        if self.langfuse_public_key:
+            os.environ["LANGFUSE_PUBLIC_KEY"] = self.langfuse_public_key
+        if self.langfuse_secret_key:
+            os.environ["LANGFUSE_SECRET_KEY"] = self.langfuse_secret_key
 
-settings = LoggingSettings()
+        active_url = self.langfuse_host or self.langfuse_base_url
+        if active_url:
+            os.environ["LANGFUSE_BASE_URL"] = active_url
+            os.environ["LANGFUSE_HOST"] = active_url
+
+        if self.posthog_api_key:
+            os.environ["POSTHOG_API_KEY"] = self.posthog_api_key
+        if self.posthog_host:
+            os.environ["POSTHOG_HOST"] = self.posthog_host
+
+        if self.sentry_dsn:
+            os.environ["SENTRY_DSN"] = self.sentry_dsn
+
+
+settings = WorldlineSettings()

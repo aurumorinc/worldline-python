@@ -29,8 +29,8 @@ globs: test_*.py, *_test.py
 - ALWAYS isolate tests from each other with `setUp`, `tearDown`, `setUpModule`, and `tearDownModule`.
 - ALWAYS encapsulate dependencies to facilitate mocking and testing.
 - ALWAYS consider interactive debugging with `pdb`.
-- ALWAYS structure the `tests/` directory to separate unit, integration, e2e, and performance tests, mirroring the `src/` directory for unit tests.
-- ALWAYS mirror the structure of the rest of the source tree within the `tests` directory (e.g., code in `src/app/services/auth.py` MUST be tested in `tests/unit/app/services/test_auth.py`).
+- ALWAYS structure the `tests/` directory to separate unit, integration, e2e, and performance tests.
+- ALWAYS mirror the structure of the `src/` tree within the `tests/unit`, `tests/integration/internal`, `tests/integration/external`, and `tests/e2e` directories (e.g., code in `src/app/services/auth.py` MUST be tested in `tests/unit/app/services/test_auth.py`, `tests/integration/internal/app/services/test_auth.py`, `tests/integration/external/app/services/test_auth.py`, and `tests/e2e/app/services/test_auth.py`).
 - ALWAYS ensure tests are stored inside a `tests` subpackage of your application/library so they can be shipped and reused, and to prevent them from being accidentally installed as a top-level `tests` module.
 
 ## 📁 Test Directory Structure
@@ -52,18 +52,28 @@ my-python-project/
 │   │       └── utils/
 │   │           └── test_logger.py
 │   ├── integration/
-│   │   ├── internal/           # Testing logic + DB (Postgres/Redis)
-│   │   │   ├── conftest.py     # DB-specific fixtures (Transaction rollback)
-│   │   │   └── test_user_db.py
-│   │   └── external/           # External API (Sandbox/Live)
-│   │       ├── cassettes/      # VCR.py YAML recordings
-│   │       │   └── test_stripe_pay.yaml
-│   │       ├── conftest.py     # External auth / VCR config
-│   │       └── test_stripe.py
-│   ├── e2e/                    # Playwright (Python version)
-│   │   ├── test_ui_flow.py
-│   │   └── pom/                # Page Object Models
-│   │       └── dashboard_page.py
+│   │   ├── internal/           # 1-to-1 Mirror of src/ (uses mock or local DB)
+│   │   │   └── app/
+│   │   │       ├── services/
+│   │   │       │   ├── conftest.py     # DB-specific fixtures (Transaction rollback)
+│   │   │       │   └── test_auth.py
+│   │   │       └── utils/
+│   │   │           └── test_logger.py
+│   │   └── external/           # 1-to-1 Mirror of src/ (uses vcrpy or sandbox API)
+│   │       └── app/
+│   │           ├── services/
+│   │           │   ├── cassettes/      # VCR.py YAML recordings
+│   │           │   │   └── test_auth.yaml
+│   │           │   ├── conftest.py     # External auth / VCR config
+│   │           │   └── test_auth.py
+│   │           └── utils/
+│   │               └── test_logger.py
+│   ├── e2e/                    # 1-to-1 Mirror of src/
+│   │   └── app/
+│   │       └── services/
+│   │           ├── test_auth.py
+│   │           └── pom/            # Page Object Models
+│   │               └── dashboard_page.py
 │   ├── performance/            # Locust testing
 │   │   └── locustfile.py
 │   └── data/                   # GLOBAL STATIC FIXTURES (The Python way)
@@ -73,7 +83,25 @@ my-python-project/
 └── pyproject.toml
 ```
 
-##  Examples
+## 📊 Test Types and Usage
+
+- **Unit Tests (`tests/unit/`)**: Fast, isolated tests focusing on individual functions, methods, or classes.
+  - **When to use**: To verify the core logic, edge cases, and error handling of individual components.
+  - **Characteristics**: Fast execution, heavy use of mocks/fakes, zero external dependencies (no real DB or network calls).
+
+- **Internal Integration Tests (`tests/integration/internal/`)**: Tests that verify how application code interacts with infrastructure we control (e.g., databases, Redis, message queues).
+  - **When to use**: To verify database queries, ORM mapping, cache behavior, or complex service interactions.
+  - **Characteristics**: Slower than unit tests, uses real local infrastructure (e.g., PostgreSQL/Redis), employs transaction rollbacks between tests for isolation. Mocks are only used for 3rd-party APIs.
+
+- **External Integration Tests (`tests/integration/external/`)**: Tests that verify how the application communicates with third-party services (e.g., Stripe, AWS, Twilio).
+  - **When to use**: To verify API client configurations, serialization, and correct handling of external API responses/errors.
+  - **Characteristics**: Uses `vcrpy` to record actual HTTP interactions into `cassettes/` (YAML files). Tests run fast against recordings during development/CI, but can run against actual sandbox APIs periodically to detect upstream API changes.
+
+- **End-to-End (E2E) Tests (`tests/e2e/`)**: Full-system tests verifying user flows from the outside in (e.g., Playwright for UI, or REST API calls).
+  - **When to use**: To ensure critical user journeys (signup, checkout) work perfectly across the fully integrated stack.
+  - **Characteristics**: Slowest execution, requires a fully running environment, highest maintenance cost. Keep these limited to essential "happy path" and critical smoke tests.
+
+## 📝 Examples
 
 ### ✅ DO
 ```python

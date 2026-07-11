@@ -4,14 +4,19 @@ Worldline is a unified observability and telemetry bootstrapper for Python. It p
 
 ## Features
 
-- **Unified Bootstrapper**: One call to `setup_logging()` configures your entire telemetry stack (Logging, Sentry, PostHog, Langfuse, and OpenTelemetry) based on the presence of environment variables.
-- **Submodule Vendor Re-export**: Access Sentry, PostHog, and Langfuse natively directly through `lume` (e.g., `from worldline import sentry_sdk`). This preserves original typings and API surfaces while keeping dependency versions centralized in this package.
+- **Zero-Config Bootstrapper**: Simply importing from `worldline` eagerly configures your entire telemetry stack (Logging, Sentry, PostHog, Langfuse, and OpenTelemetry) based on the presence of environment variables.
+- **Submodule Vendor Re-export**: Access Sentry and PostHog natively directly through `worldline` (e.g., `from worldline import sentry_sdk`). This preserves original typings and API surfaces while keeping dependency versions centralized in this package. For Langfuse, please import directly from the `langfuse` package.
 - **Structured Logging**: Powered by `structlog` for consistent, machine-readable logs.
 - **Decoupled Transports**: 
   - **Terminal Transport (stdout)**: Always active, beautifully formatted with `rich`.
   - **Bifurcated OpenTelemetry (Network)**: OTLP exporters spin up *strictly* when running inside Windmill (detected via `WINDMILL_TOKEN` and `WINDMILL_WORKSPACE`), ensuring no idle exporters in local/dev environments.
 - **Context Injection**: Automatically injects `trace_id` and `span_id` from OpenTelemetry into log records.
 - **Configuration via Env Vars**: Easy configuration using `pydantic-settings`.
+
+## Documentation
+
+- [Configuration Guide](docs/configuration.md) - Learn how to configure vendors via environment variables and `pydantic-settings`.
+- [Usage Guide](docs/usage.md) - See examples for structural logging, context variables, and native vendor facades.
 
 ## Installation
 
@@ -23,126 +28,19 @@ pip install git+https://github.com/aurumorinc/worldline-python.git
 
 *(Note: While the repository is `worldline-python`, the importable package is `worldline`)*
 
-## Configuration
+## Quickstart
 
-Configuration is handled via environment variables (or a `.env` file) using `pydantic-settings`.
-
-| Environment Variable | Default | Description |
-| :--- | :--- | :--- |
-| `LOG_LEVEL` | `INFO` | The logging level (e.g., `DEBUG`, `INFO`, `WARNING`, `ERROR`, `CRITICAL`). |
-| `SENTRY_DSN` | `None` | The DSN for Sentry. If provided, Sentry will be automatically initialized. |
-| `POSTHOG_API_KEY` | `None` | Project API Key for PostHog. If provided, PostHog will be automatically configured. |
-| `POSTHOG_HOST` | `https://us.i.posthog.com` | Host URL for PostHog. |
-| `LANGFUSE_PUBLIC_KEY` | `None` | Public Key for Langfuse. |
-| `LANGFUSE_SECRET_KEY` | `None` | Secret Key for Langfuse. If both keys are provided, Langfuse is initialized. |
-| `LANGFUSE_HOST` | `https://cloud.langfuse.com` | Host URL for Langfuse. |
-| `WINDMILL_TOKEN` | `None` | Windmill Workspace Token. Required for Windmill OTEL. |
-| `WINDMILL_WORKSPACE` | `None` | Windmill Workspace Name. Required for Windmill OTEL. |
-| `WINDMILL_BASE_URL` | `None` | Base URL for Windmill, used for resolving OTEL endpoints. |
-| `OTEL_EXPORTER_OTLP_ENDPOINT` | `None` | Fallback OTLP endpoint for exporting traces. |
-| `OTEL_EXPORTER_OTLP_LOGS_ENDPOINT`| `None` | Fallback specific OTLP endpoint for exporting logs. |
-
-## Usage
-
-**CRITICAL RULE:** You must call `setup_logging()` **exactly once** at the very entry point of your application (e.g., in your `main.py`, `app.py`, or CLI entry script). Because it configures the global logging and observability state, you do *not* need to call it in every file.
-
-### Integrating with Project Settings (Pydantic)
-
-If your project already uses `pydantic-settings`, you can easily merge the telemetry configuration into your main settings class by inheriting from `LoggingSettings`. This allows you to validate all environment variables (both app-specific and logging-specific) in one place.
-
-```python
-from pydantic_settings import BaseSettings
-from worldline import LoggingSettings
-
-# Inherit from LoggingSettings to include logging configuration
-class Settings(LoggingSettings, BaseSettings):
-    app_name: str = "my-awesome-app"
-    database_url: str
-
-# Instantiate your combined settings
-settings = Settings()
-
-```
-
-### Basic Logging Usage
+Telemetry and logging are eagerly initialized on package import. By simply importing from `worldline`, the global observability state is configured automatically.
 
 ```python
 from worldline import structlog
 
-# 2. Get a logger instance for this module
+# 1. Get a logger instance for this module
 logger = structlog.get_logger(__name__)
 
-# 3. Log messages with structured data
+# 2. Log messages with structured data
 logger.info("user_logged_in", user_id=123, ip_address="192.168.1.1")
-
-try:
-    1 / 0
-except ZeroDivisionError:
-    logger.exception("calculation_failed", operation="division")
 ```
-
-### Context Variables
-
-You can bind context variables to a logger so they are included in all subsequent log calls from that logger.
-
-```python
-from worldline import structlog
-
-logger = structlog.get_logger(__name__).bind(request_id="req-abc-123")
-
-logger.info("processing_request") 
-# Includes: request_id="req-abc-123"
-
-logger.info("request_completed", status=200) 
-# Includes: request_id="req-abc-123", status=200
-```
-
-### Vendor Facades
-
-`worldline` exports Sentry, PostHog, and Langfuse directly. You do not need to install these dependencies manually in your consumer application; they are natively managed and exposed by `worldline`.
-
-```python
-from worldline import sentry_sdk, posthog, langfuse, observe
-
-# Sentry
-sentry_sdk.capture_message("Something went wrong")
-
-# PostHog
-posthog.capture("user_123", "event_name", properties={"key": "value"})
-
-# Langfuse (via decorator)
-@observe(as_type="generation")
-def my_llm_call(prompt):
-    return "LLM Response"
-```
-
-### OpenTelemetry & Windmill Integration
-
-If you configure `WINDMILL_TOKEN` and `WINDMILL_WORKSPACE`, logs and traces will automatically be exported to the Windmill platform.
-
-`worldline` will also automatically extract the active `trace_id` and `span_id` and inject them into your log records. When running inside Windmill, it automatically extracts tracing contexts from the environment.
-
-## Terminal Output
-
-Worldline uses `rich.logging.RichHandler` for beautiful, structured formatting in the terminal.
-
-**Configuration:**
-```bash
-export LOG_LEVEL=INFO
-```
-
-**Code:**
-```python
-logger.info("Starting data synchronization...")
-logger.warning("Rate limit approaching", current=95, max=100)
-```
-
-**Output Example:**
-```text
-[14:38:01] INFO     Starting data synchronization...
-           WARNING  Rate limit approaching                             current=95 max=100
-```
-*(Note: The actual output will be beautifully formatted and colorized by `rich`, with aligned timestamps, levels, and structured key-value pairs)*
 
 ## Development
 

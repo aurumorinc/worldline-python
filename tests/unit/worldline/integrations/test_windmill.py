@@ -18,12 +18,3 @@ def test_get_windmill_traceparent_valid():
 def test_get_windmill_traceparent_missing():
     traceparent = get_windmill_traceparent()
     assert traceparent is None
-
-
-def test_windmill_facade_re_exported() -> None:
-    from worldline import get_windmill_traceparent as top_level_fn
-    from worldline.integrations import get_windmill_traceparent as integrations_fn
-    from worldline.integrations.windmill import get_windmill_traceparent as real_fn
-
-    assert top_level_fn is real_fn
-    assert integrations_fn is real_fn
