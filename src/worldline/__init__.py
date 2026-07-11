@@ -6,7 +6,7 @@ import sys
 
 # Auto-instrumentation execution block
 if not getattr(sys, "_WORLDLINE_INITIALIZED", False):
-    sys._WORLDLINE_INITIALIZED = True  # type: ignore
+    setattr(sys, "_WORLDLINE_INITIALIZED", True)
 
     if os.environ.get("WORLDLINE_DISABLE_AUTO_INSTRUMENTATION", "").lower() != "true":
         try:
