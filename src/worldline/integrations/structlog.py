@@ -11,6 +11,7 @@ import structlog
 if TYPE_CHECKING:
     from worldline.config import WorldlineSettings
 
+
 def setup_structlog(settings: Optional["WorldlineSettings"] = None) -> None:
     """
     Internal zero-config initialization.
@@ -18,6 +19,7 @@ def setup_structlog(settings: Optional["WorldlineSettings"] = None) -> None:
     """
     if settings is None:
         from worldline.config import settings as default_settings
+
         settings = default_settings
 
     # Determine log level

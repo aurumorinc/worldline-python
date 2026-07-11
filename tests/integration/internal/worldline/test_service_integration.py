@@ -12,7 +12,7 @@ from worldline.service import setup
 def reset_state():
     """Reset the module-level state before and after each test."""
     import worldline.service as service_module
-    
+
     service_module._WORLDLINE_CONFIGURED = False
     structlog.reset_defaults()
     logging.getLogger().handlers.clear()

@@ -11,6 +11,9 @@ if not getattr(sys, "_WORLDLINE_INITIALIZED", False):
     if os.environ.get("WORLDLINE_DISABLE_AUTO_INSTRUMENTATION", "").lower() != "true":
         try:
             from worldline.service import setup
+
             setup()
         except Exception as e:
             sys.stderr.write(f"Worldline auto-instrumentation failed: {e}\n")
+
+__all__ = ["__version__"]

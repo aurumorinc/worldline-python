@@ -41,11 +41,13 @@ def test_init_executes_setup(mock_setup):
 def test_init_catches_setup_exceptions(mock_setup):
     """Test that exceptions during setup are caught and do not crash."""
     mock_setup.side_effect = Exception("Test exception")
-    
+
     with mock.patch("sys.stderr.write") as mock_stderr:
         importlib.reload(worldline)
         mock_setup.assert_called_once()
-        mock_stderr.assert_called_once_with("Worldline auto-instrumentation failed: Test exception\n")
+        mock_stderr.assert_called_once_with(
+            "Worldline auto-instrumentation failed: Test exception\n"
+        )
         assert getattr(sys, "_WORLDLINE_INITIALIZED", False) is True
 
 
@@ -53,6 +55,6 @@ def test_init_catches_setup_exceptions(mock_setup):
 def test_init_idempotency(mock_setup):
     """Test that initialization only occurs once."""
     sys._WORLDLINE_INITIALIZED = True
-    
+
     importlib.reload(worldline)
     mock_setup.assert_not_called()

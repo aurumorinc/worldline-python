@@ -6,6 +6,7 @@ import structlog
 
 from worldline.integrations.structlog import setup_structlog
 
+
 @pytest.fixture(autouse=True)
 def reset_structlog_state():
     """Reset the module-level state before and after each test."""
@@ -14,6 +15,7 @@ def reset_structlog_state():
     yield
     structlog.reset_defaults()
     logging.getLogger().handlers.clear()
+
 
 @mock.patch("structlog.configure", spec=True)
 @mock.patch("worldline.service.setup_otel_provider", spec=True)
@@ -28,12 +30,13 @@ def test_setup_structlog(mock_setup_otel, mock_configure):
     mock_configure.assert_called_once()
     assert len(logging.getLogger().handlers) > 0
 
+
 @mock.patch("worldline.service.setup_otel_provider", spec=True)
 def test_setup_structlog_with_otel(mock_setup_otel):
     """Assert that setup_structlog correctly sets up OTel handler if provider exists."""
     from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
     from worldline.config import WorldlineSettings
-    
+
     mock_provider = LoggerProvider()
     mock_setup_otel.return_value = mock_provider
 

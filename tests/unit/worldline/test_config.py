@@ -132,7 +132,7 @@ def test_worldline_settings_populates_environ():
         "posthog_host": "https://custom.posthog.com",
         "sentry_dsn": "https://dummy@sentry.io/123",
     }
-    
+
     # Act
     WorldlineSettings(**test_env)
 
@@ -154,7 +154,7 @@ def test_worldline_settings_populates_environ_with_langfuse_host():
         "langfuse_base_url": "https://ignored.langfuse.com",
         "langfuse_host": "https://prioritized.langfuse.com",
     }
-    
+
     # Act
     WorldlineSettings(**test_env)
 

@@ -151,13 +151,19 @@ def test_get_console_format():
 @mock.patch("posthog.project_api_key", create=True)
 @mock.patch("posthog.host", create=True)
 @mock.patch("sentry_sdk.init", create=True)
-def test_setup_orchestration(mock_sentry_init, mock_posthog_host, mock_posthog_api_key, mock_langfuse, mock_setup_structlog):
+def test_setup_orchestration(
+    mock_sentry_init,
+    mock_posthog_host,
+    mock_posthog_api_key,
+    mock_langfuse,
+    mock_setup_structlog,
+):
     """Test that setup() correctly orchestrates integrations based on settings."""
     from worldline.config import WorldlineSettings
-    
+
     # Reset state
     service_module._WORLDLINE_CONFIGURED = False
-    
+
     settings = WorldlineSettings(
         sentry_dsn="https://dummy@sentry.io/123",
         posthog_api_key="ph_key",
@@ -165,31 +171,30 @@ def test_setup_orchestration(mock_sentry_init, mock_posthog_host, mock_posthog_a
         langfuse_public_key="lf_pub",
         langfuse_secret_key="lf_sec",
         langfuse_base_url="lf_host",
-        langfuse_host="lf_host"
+        langfuse_host="lf_host",
     )
 
     with mock.patch.dict("sys.modules", {"posthog": mock.MagicMock()}):
         import sys
+
         mock_posthog = sys.modules["posthog"]
         setup(settings)
 
         # Assert Sentry
         mock_sentry_init.assert_called_once_with(dsn="https://dummy@sentry.io/123")
-        
+
         # Assert PostHog
         assert mock_posthog.project_api_key == "ph_key"
         assert mock_posthog.host == "ph_host"
-        
+
         # Assert Langfuse
         mock_langfuse.assert_called_once_with(
-            public_key="lf_pub",
-            secret_key="lf_sec",
-            host="lf_host"
+            public_key="lf_pub", secret_key="lf_sec", host="lf_host"
         )
-        
+
         # Assert Structlog
         mock_setup_structlog.assert_called_once_with(settings)
-        
+
         # Assert state
         assert service_module._WORLDLINE_CONFIGURED is True
 
@@ -199,9 +204,9 @@ def test_setup_idempotency(mock_setup_structlog):
     """Test that setup() is idempotent."""
     # Reset state
     service_module._WORLDLINE_CONFIGURED = False
-    
+
     setup()
     setup()
-    
+
     # Should only be called once
     mock_setup_structlog.assert_called_once()

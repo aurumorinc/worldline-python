@@ -75,7 +75,7 @@ class WorldlineSettings(BaseSettings):
             os.environ["LANGFUSE_PUBLIC_KEY"] = self.langfuse_public_key
         if self.langfuse_secret_key:
             os.environ["LANGFUSE_SECRET_KEY"] = self.langfuse_secret_key
-        
+
         active_url = self.langfuse_host or self.langfuse_base_url
         if active_url:
             os.environ["LANGFUSE_BASE_URL"] = active_url
